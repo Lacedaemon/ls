@@ -1,13 +1,11 @@
 const urlUtil = require('url');
 
-const amazonIn = require('./amazon.in');
-const flipkart = require('./flipkart');
-const myntra = require('./myntra');
+const amazon = require ('./amazon');
+const newegg = require ('./newegg');
 
 const sellers = {
-  amazonIn,
-  flipkart,
-  myntra,
+  amazon,
+  newegg,
 };
 
 const getSeller = host =>
