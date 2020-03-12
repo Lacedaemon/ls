@@ -2,10 +2,12 @@ const urlUtil = require('url');
 
 const amazon = require ('./amazon');
 const newegg = require ('./newegg');
+const bhphotovideo = require('./bhphotovideo');
 
 const sellers = {
   amazon,
   newegg,
+  bhphotovideo,
 };
 
 const getSeller = host =>
