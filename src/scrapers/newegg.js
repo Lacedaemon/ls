@@ -1,29 +1,30 @@
-const { Chromeless } = require('chromeless');
+const chromium = require('chrome-aws-lambda');
 
 module.exports = {
   host: 'newegg.com',
 
-  scrape: (url) => {
-    //const chromeless = new Chromeless({
-    //  remote: {
-    //    apiKey: process.env.CHROMELESS_API_KEY,
-    //    endpointUrl: process.env.CHROMELESS_ENDPOINT,
-    //  }
-    //});
+  scrape: async (url) => {
+let result = null;
+  let browser = null;
 
-    const chromeless = new Chromeless();
+  try {
+    browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+    //executablePath: "google-chrome",
+      headless: chromium.headless,
+      //headless: true,
+    });
 
-    return chromeless
-      //.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36")
-      //.setViewport({ width: 990, height: 400, scale: 1 })
-      .goto(url)
-      .evaluate(function () {
-        try {
+    const page = await browser.newPage();
+
+    await page.goto(url, {
+        waitUntil: 'networkidle2',
+    });
+        result = await page.evaluate(function() {
           const allPriceDomSelectors = ['.price-main-product > li.price-current'];
 
-          /**
-           * get price
-           */
           const priceDomSelector = allPriceDomSelectors.find(
             selector => document.querySelector(selector)
           );
@@ -38,11 +39,16 @@ module.exports = {
           return Promise.resolve({
             price,
           });
-        } catch (e) {
-          return Promise.reject(e);
+        });
+
+    } catch (error) {
+        result = Promise.reject(error);
+    } finally {
+        if (browser !== null) {
+                await browser.close();
         }
-      })
-      .end();
+    }
+        return result;
   },
 
   normalize: (url) => {

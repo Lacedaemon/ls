@@ -1,48 +1,54 @@
-const { Chromeless } = require('chromeless');
+const chromium = require('chrome-aws-lambda');
 
 module.exports = {
   host: 'bhphotovideo.com',
 
-  scrape: (url) => {
-    //const chromeless = new Chromeless({
-    //  remote: {
-    //    apiKey: process.env.CHROMELESS_API_KEY,
-    //    endpointUrl: process.env.CHROMELESS_ENDPOINT,
-    //  }
-    //});
+  scrape: async (url) => {
+    let result = null;
+  let browser = null;
 
-    const chromeless = new Chromeless();
+  try {
+    browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+    //executablePath: "google-chrome",
+      headless: chromium.headless,
+      //headless: true,
+    });
 
-    return chromeless
-      //.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36")
-      //.setViewport({ width: 990, height: 400, scale: 1 })
-      .goto(url)
-      .evaluate(function () {
-        try {
-          const allPriceDomSelectors = ['div[data-selenium=pricingPrice]'];
+    const page = await browser.newPage();
 
-          /**
-           * get price
-           */
-          const priceDomSelector = allPriceDomSelectors.find(
-            selector => document.querySelector(selector)
-          );
+    await page.goto(url, {
+        waitUntil: 'networkidle2',
+    });
+        result = await page.evaluate(function() {
+        const allPriceDomSelectors = ['div[data-selenium=pricingPrice]'];
 
-          const priceDomRef = document.querySelector(priceDomSelector);
-          const priceHtml = priceDomRef.innerHTML;
+        const priceDomSelector = allPriceDomSelectors.find(
+          selector => document.querySelector(selector)
+        );
 
-          const priceStr = priceHtml.replace(/(<([^>]+)>)/g, '').replace(/,/g, '').replace(/\s/, '').replace(/\$/, '');
+        const priceDomRef = document.querySelector(priceDomSelector);
+        const priceHtml = priceDomRef.innerHTML;
+
+        const priceStr = priceHtml.replace(/(<([^>]+)>)/g, '').replace(/,/g, '').replace(/\s/, '').replace(/\$/, '');
 
           const price = Number(priceStr);
 
           return Promise.resolve({
             price,
           });
-        } catch (e) {
-          return Promise.reject(e);
+        });
+
+    } catch (error) {
+        result = Promise.reject(error);
+    } finally {
+        if (browser !== null) {
+                await browser.close();
         }
-      })
-      .end();
+    }
+        return result;
   },
 
   normalize: (url) => {
