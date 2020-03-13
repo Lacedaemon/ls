@@ -19,10 +19,12 @@ service: cheapass
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  region: ${file(./serverless.env.yml):dev.region}
+  runtime: nodejs10.x
+  versionFunctions: false
   environment:
-    CHROMELESS_API_KEY: ${file(./serverless.env.yml):dev.CHROMELESS_API_KEY}
-    CHROMELESS_ENDPOINT: ${file(./serverless.env.yml):dev.CHROMELESS_ENDPOINT}
+    CHROMELESS_ENDPOINT_API_KEY: ${file(./serverless.env.yml):dev.CHROMELESS_API_KEY}
+    CHROMELESS_ENDPOINT_URL: ${file(./serverless.env.yml):dev.CHROMELESS_ENDPOINT}
     ZEIT_SERVER: ${file(./serverless.env.yml):dev.ZEIT_SERVER}
 
 

@@ -4,14 +4,14 @@ module.exports = {
   host: 'bhphotovideo.com',
 
   scrape: (url) => {
-    //const chromeless = new Chromeless({
-    //  remote: {
-    //    apiKey: process.env.CHROMELESS_API_KEY,
-    //    endpointUrl: process.env.CHROMELESS_ENDPOINT,
-    //  }
-    //});
+    const chromeless = new Chromeless({
+      remote: {
+        apiKey: process.env.CHROMELESS_API_KEY,
+        endpointUrl: process.env.CHROMELESS_ENDPOINT,
+      }
+    });
 
-    const chromeless = new Chromeless();
+    //const chromeless = new Chromeless();
 
     return chromeless
       //.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36")
