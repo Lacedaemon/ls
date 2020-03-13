@@ -24,8 +24,6 @@ provider:
   timeout: 30
   versionFunctions: false
   environment:
-    CHROMELESS_ENDPOINT_API_KEY: ${file(./serverless.env.yml):dev.CHROMELESS_API_KEY}
-    CHROMELESS_ENDPOINT_URL: ${file(./serverless.env.yml):dev.CHROMELESS_ENDPOINT}
     ZEIT_SERVER: ${file(./serverless.env.yml):dev.ZEIT_SERVER}
 
 
