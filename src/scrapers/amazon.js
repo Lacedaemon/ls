@@ -7,19 +7,22 @@ module.exports = {
 	let result = null;
   let browser = null;
 
+  try {
     browser = await chromium.puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
+    //executablePath: "google-chrome",
       headless: chromium.headless,
+      //headless: true,
     });
 
     const page = await browser.newPage();
 
-    await page.goto(url);
-    //await page.waitForSelector("#priceblock_ourprice");
-
-    result = await page.evaluate(function () {
+    await page.goto(url, {
+    	waitUntil: 'networkidle2',
+    });
+	result = await page.evaluate(function() {
           const allPriceDomSelectors = ['#priceblock_dealprice', '#priceblock_ourprice',
             '#priceblock_saleprice', '#buyingPriceValue', '#actualPriceValue',
             '#priceBlock', '#price', '#buyNewSection .offer-price'];
@@ -38,21 +41,23 @@ module.exports = {
 
           const price = Number(priceStr);
 
-          return price
-	});
-    if (browser !== null) {
-      await browser.close();
+          return Promise.resolve({price,});
+        });
+
+    } catch (error) {
+    	result = Promise.reject(error);
+    } finally {
+    	if (browser !== null) {
+    		await browser.close();
+    	}
     }
-
-  console.log('Result:' + result);
-
-  return result;
+	return result;
   },
 
   normalize: (url) => {
     const asin = url.match('/([a-zA-Z0-9]{10})(?:[/?]|$)/');
     if (asin && asin[1]) {
-      return `http://www.amazon.com/dp/${asin[1]}`;
+      return `https://www.amazon.com/dp/${asin[1]}`;
     }
     return url;
   }

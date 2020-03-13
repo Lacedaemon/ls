@@ -21,6 +21,7 @@ provider:
   name: aws
   region: ${file(./serverless.env.yml):dev.region}
   runtime: nodejs10.x
+  timeout: 30
   versionFunctions: false
   environment:
     CHROMELESS_ENDPOINT_API_KEY: ${file(./serverless.env.yml):dev.CHROMELESS_API_KEY}
@@ -39,6 +40,7 @@ functions:
   add:
     description: Scrape webpage for alert set up
     handler: handler.add
+    timeout: 30
 
     events:
       - http:
