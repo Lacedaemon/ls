@@ -19,7 +19,7 @@ module.exports = {
       .goto(url)
       .evaluate(function () {
         try {
-          const allPriceDomSelectors = ['.price-main-product > li.price-current'];
+          const allPriceDomSelectors = ['div[data-selenium=pricingPrice]'];
 
           /**
            * get price
@@ -31,7 +31,7 @@ module.exports = {
           const priceDomRef = document.querySelector(priceDomSelector);
           const priceHtml = priceDomRef.innerHTML;
 
-          const priceStr = priceHtml.replace(/(<([^>]+)>)/g, '').replace(/&nbsp;/g,'').replace(/,/g, '').replace(/\s/, '').replace(/\$/, '');
+          const priceStr = priceHtml.replace(/(<([^>]+)>)/g, '').replace(/,/g, '').replace(/\s/, '').replace(/\$/, '');
 
           const price = Number(priceStr);
 
