@@ -15,67 +15,42 @@ const crawl = function(dbData, callback) {
 
   returnedPrices['uuid'] = productInfo.uuid;
 
+  const pricePromises = [];
+
   for (let [key, value] of Object.entries(productInfo.urls)) {
-    scrape(value, key)
-      .then(function (scrapedInfo) {
-        console.log(scrapedInfo);
-        Object.assign(returnedPrices.prices, scrapedInfo);
-        // add price data
-        // console.log({ productInfo, scrapedInfo });
-        // if (!scrapedInfo) {
-        //   // something went wrong with scraping. lets try again
-        //   // request({
-        //   //   url: `${process.env.LAMBDA_ENDPOINT}/dev/crawl`,
-        //   //   method: 'POST',
-        //   //   json: productInfo,
-        //   //   headers: {
-        //   //     "Content-type": "application/json",
-        //   //   },
-        //   // });
-        //
-        //   return;
-        // }
-        //
-        // const storedPrice = productInfo.price;
-        // const scrapedPrice = scrapedInfo.price;
-        //
-        // if (storedPrice !== scrapedPrice) {
-        //   db.collection('prices').doc(hash(productInfo.url)).update(
-        //     Object.assign({}, productInfo, scrapedInfo)
-        //   );
-        //
-        //   db.collection('prices').add({
-        //     uuid: productInfo.id,
-        //     price: scrapedPrice,
-        //     created: new Date(),
-        //   }).then(docRef => {
-        //     res.json({ message: 'Successfully added to prices collection', ackId: docRef.id })
-        //   }).catch(e => {
-        //     res.status(500).json({ message: 'Something went wrong!', error: e });
-        //   });
-        //
-        // } else {
-        //   res.json({ message: 'Done, but nothing has really changed!' });
-        // }
-        console.log(returnedPrices);
-        callback(null, scrapedInfo);
-      })
-      .catch(function (e) {
-        // console.log('issues in crawl', e);
-        // request({
-        //   url: `${process.env.ZEIT_SERVER}/api/prices/${id}`,
-        //   method: 'POST',
-        //   json: {
-        //     productInfo: productInfo,
-        //   },
-        //   headers: {
-        //     "Content-type": "application/json",
-        //   },
-        // });
-        //
-        // callback(null, e);
-      })
+    const promise = new Promise((resolve) => {
+        if (!!value) {
+        scrape(value, key)
+          .then(function (scrapedInfo) {
+            console.log(scrapedInfo);
+            Object.assign(returnedPrices.prices, scrapedInfo);
+            resolve();
+            //callback(null, scrapedInfo);
+          })
+          .catch(function (e) {
+            var emptyURL = [];
+            emptyURL[key] = '';
+            console.log(emptyURL);
+            Object.assign(returnedPrices.prices, emptyURL);
+            resolve();
+          });
+      } else {
+        var emptyURL = [];
+        emptyURL[key] = '';
+        console.log(emptyURL);
+        Object.assign(returnedPrices.prices, emptyURL);
+        resolve();
+      }
+
+    })
+    pricePromises.push(promise);
   }
+
+  Promise.all(pricePromises).then(() => {
+    console.log(returnedPrices);
+
+    // TO-DO: push to DB in this block
+  })
 }
 
 module.exports.crawl = crawl;
@@ -84,6 +59,7 @@ module.exports.run = (event, context, callback) => {
   db.collection('links').get().then((querySnapshot) => {
     const data = [];
     querySnapshot.forEach(doc => {
+      // TO-DO: invoke new lambda per crawl
       crawl(Object.assign({}, doc.data()));
     });
 
