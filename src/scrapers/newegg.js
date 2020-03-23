@@ -2,6 +2,7 @@ const chromium = require('chrome-aws-lambda');
 
 module.exports = {
   host: 'newegg.com',
+  seller: 'newegg',
 
   scrape: async (url) => {
 let result = null;
@@ -9,12 +10,12 @@ let result = null;
 
   try {
     browser = await chromium.puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-    //executablePath: "google-chrome",
-      headless: chromium.headless,
-      //headless: true,
+      // args: chromium.args,
+      // defaultViewport: chromium.defaultViewport,
+      // executablePath: await chromium.executablePath,
+    executablePath: "google-chrome",
+      // headless: chromium.headless,
+      headless: true,
     });
 
     const page = await browser.newPage();
@@ -34,10 +35,10 @@ let result = null;
 
           const priceStr = priceHtml.replace(/(<([^>]+)>)/g, '').replace(/&nbsp;/g,'').replace(/,/g, '').replace(/\s/, '').replace(/\$/, '');
 
-          const price = Number(priceStr);
+          const newegg = Number(priceStr);
 
           return Promise.resolve({
-            price,
+            newegg,
           });
         });
 

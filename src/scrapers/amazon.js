@@ -9,12 +9,12 @@ module.exports = {
 
   try {
     browser = await chromium.puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-    //executablePath: "google-chrome",
-      headless: chromium.headless,
-      //headless: true,
+      // args: chromium.args,
+      // defaultViewport: chromium.defaultViewport,
+      // executablePath: await chromium.executablePath,
+    executablePath: "google-chrome",
+      // headless: chromium.headless,
+      headless: true,
     });
 
     const page = await browser.newPage();
@@ -39,9 +39,9 @@ module.exports = {
 
           const priceStr = priceHtml.replace(/<span[\s\S]*?<\/span>/g, '').replace(/,/g, '').replace(/\s/, '').replace(/\$/, '');
 
-          const price = Number(priceStr);
+          const amazon = Number(priceStr);
 
-          return Promise.resolve({price,});
+          return Promise.resolve({amazon,});
         });
 
     } catch (error) {

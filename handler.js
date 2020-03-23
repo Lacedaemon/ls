@@ -2,67 +2,93 @@
 const request = require('request');
 const scrape = require('./src/scrapers');
 const qs = require('querystring');
+// const db = require('./src/db');
 
-module.exports.add = (event, context, callback) => {
-  console.log(event.body);
-  const { url } = qs.parse(event.body);
-  console.log(qs.parse(event.body));
-  scrape(url)
-    .then(function (data) {
-      console.log(data);
-      callback(null, {
-        statusCode: 200,
-        body: JSON.stringify(data),
-      });
-    })
-    .catch(function (e) {
-      console.log('something bad happened', e);
-      callback(null, e);
-    });
+const crawl = function(dbData, callback) {
+  const productInfo = dbData;
+  console.log(productInfo);
+  const { uuid, urls } = productInfo;
+  const returnedPrices = {
+    uuid: "",
+    prices: {},
+  };
+
+  returnedPrices['uuid'] = productInfo.uuid;
+
+  for (let [key, value] of Object.entries(productInfo.urls)) {
+    scrape(value, key)
+      .then(function (scrapedInfo) {
+        console.log(scrapedInfo);
+        Object.assign(returnedPrices.prices, scrapedInfo);
+        // add price data
+        // console.log({ productInfo, scrapedInfo });
+        // if (!scrapedInfo) {
+        //   // something went wrong with scraping. lets try again
+        //   // request({
+        //   //   url: `${process.env.LAMBDA_ENDPOINT}/dev/crawl`,
+        //   //   method: 'POST',
+        //   //   json: productInfo,
+        //   //   headers: {
+        //   //     "Content-type": "application/json",
+        //   //   },
+        //   // });
+        //
+        //   return;
+        // }
+        //
+        // const storedPrice = productInfo.price;
+        // const scrapedPrice = scrapedInfo.price;
+        //
+        // if (storedPrice !== scrapedPrice) {
+        //   db.collection('prices').doc(hash(productInfo.url)).update(
+        //     Object.assign({}, productInfo, scrapedInfo)
+        //   );
+        //
+        //   db.collection('prices').add({
+        //     uuid: productInfo.id,
+        //     price: scrapedPrice,
+        //     created: new Date(),
+        //   }).then(docRef => {
+        //     res.json({ message: 'Successfully added to prices collection', ackId: docRef.id })
+        //   }).catch(e => {
+        //     res.status(500).json({ message: 'Something went wrong!', error: e });
+        //   });
+        //
+        // } else {
+        //   res.json({ message: 'Done, but nothing has really changed!' });
+        // }
+        console.log(returnedPrices);
+        callback(null, scrapedInfo);
+      })
+      .catch(function (e) {
+        // console.log('issues in crawl', e);
+        // request({
+        //   url: `${process.env.ZEIT_SERVER}/api/prices/${id}`,
+        //   method: 'POST',
+        //   json: {
+        //     productInfo: productInfo,
+        //   },
+        //   headers: {
+        //     "Content-type": "application/json",
+        //   },
+        // });
+        //
+        // callback(null, e);
+      })
+  }
 }
+
+module.exports.crawl = crawl;
 
 module.exports.run = (event, context, callback) => {
-  request({
-    url: `${process.env.ZEIT_SERVER}/api/crawl_all`,
-    method: 'POST',
-    json: {},
-  }, (requestError, response, body) => {
-    callback(requestError, body);
-  });
-}
+  db.collection('links').get().then((querySnapshot) => {
+    const data = [];
+    querySnapshot.forEach(doc => {
+      crawl(Object.assign({}, doc.data()));
+    });
 
-module.exports.crawl = (event, context, callback) => {
-  const productInfo = JSON.parse(event.body);
-  console.log(productInfo);
-  const { url, id, seller } = productInfo;
-  scrape(url, seller)
-    .then(function (scrapedInfo) {
-      request({
-        url: `${process.env.ZEIT_SERVER}/api/prices/${id}`,
-        method: 'POST',
-        json: {
-          productInfo: productInfo,
-          scrapedInfo: scrapedInfo,
-        },
-        headers: {
-          "Content-type": "application/json",
-        },
-      });
-      callback(null, scrapedInfo);
-    })
-    .catch(function (e) {
-      console.log('issues in crawl', e);
-      request({
-        url: `${process.env.ZEIT_SERVER}/api/prices/${id}`,
-        method: 'POST',
-        json: {
-          productInfo: productInfo,
-        },
-        headers: {
-          "Content-type": "application/json",
-        },
-      });
-
-      callback(null, e);
-    })
+    res.json({ message: 'Crawling all products' });
+  }).catch(e => {
+    res.status(500).json({ message: 'Something went wrong ', error: e });
+  })
 }

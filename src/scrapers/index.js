@@ -33,9 +33,7 @@ module.exports = (url, seller) => {
 
   return new Promise((resolve, reject) =>
     scrape(url).then(data =>
-      resolve(Object.assign({}, data, {
-        url: normalize(url)
-      }))
+      resolve(Object.assign({}, data))
     ).catch(e => {
       console.log(e);
       reject(e);
