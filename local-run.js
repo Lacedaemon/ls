@@ -9,10 +9,12 @@ const handler = require('./handler')
 //   console.log(output)
 // })
 
-handler.crawl({
-  uuid: "blah",
-  urls: {
-    amazon: "https://www.amazon.com/AMD-Ryzen-3600-12-Thread-Processor/dp/B07STGGQ18",
-    bhphotovideo: "https://www.bhphotovideo.com/c/product/1485462-REG",
-    newegg: "https://www.newegg.com/amd-ryzen-5-3600/p/N82E16819113569"
-  }})
+// handler.crawl({
+//   uuid: "zKrUwqTRzpGpKOIobHKa",
+//   urls: {
+//     amazon: "https://www.amazon.com/AMD-Ryzen-3600-12-Thread-Processor/dp/B07STGGQ18",
+//     bhphotovideo: "https://www.bhphotovideo.com/c/product/1485462-REG",
+//     newegg: "https://www.newegg.com/amd-ryzen-5-3600/p/N82E16819113569"
+//   }})
+
+handler.run();

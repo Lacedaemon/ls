@@ -3,20 +3,14 @@ const chromium = require('chrome-aws-lambda');
 module.exports = {
   host: 'amazon.com',
 
-  scrape: async (url) => {
+  scrape: async (url, browserWSEndpoint) => {
 	let result = null;
   let browser = null;
 
   try {
-    browser = await chromium.puppeteer.launch({
-      // args: chromium.args,
-      // defaultViewport: chromium.defaultViewport,
-      // executablePath: await chromium.executablePath,
-    executablePath: "google-chrome",
-      // headless: chromium.headless,
-      headless: true,
-    });
-
+    console.log("Trying to start browser");
+    browser = await chromium.puppeteer.connect({browserWSEndpoint}, ignoreHTTPSErrors: true);
+    console.log("Browser started");
     const page = await browser.newPage();
 
     await page.goto(url, {
@@ -48,7 +42,7 @@ module.exports = {
     	result = Promise.reject(error);
     } finally {
     	if (browser !== null) {
-    		await browser.close();
+    		await browser.disconnect();
     	}
     }
 	return result;

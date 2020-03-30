@@ -2,21 +2,13 @@ const chromium = require('chrome-aws-lambda');
 
 module.exports = {
   host: 'newegg.com',
-  seller: 'newegg',
 
-  scrape: async (url) => {
+  scrape: async (url, browserWSEndpoint) => {
 let result = null;
   let browser = null;
 
   try {
-    browser = await chromium.puppeteer.launch({
-      // args: chromium.args,
-      // defaultViewport: chromium.defaultViewport,
-      // executablePath: await chromium.executablePath,
-    executablePath: "google-chrome",
-      // headless: chromium.headless,
-      headless: true,
-    });
+    browser = await chromium.puppeteer.connect({browserWSEndpoint});
 
     const page = await browser.newPage();
 

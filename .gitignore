@@ -6,4 +6,6 @@ jspm_packages
 .serverless
 serverless.env.yml
 
+fs-auth.json
+
 **/.DS_Store
