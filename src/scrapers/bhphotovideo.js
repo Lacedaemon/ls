@@ -9,7 +9,14 @@ module.exports = {
 
   try {
     console.log("Trying to start browser");
-    browser = await chromium.puppeteer.connect({browserWSEndpoint});
+    browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+    //executablePath: "google-chrome",
+      headless: chromium.headless,
+      //headless: true,
+    });
     console.log("Browser started");
     const page = await browser.newPage();
 

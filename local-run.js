@@ -1,5 +1,6 @@
 'use strict'
 const handler = require('./handler')
+const rp = require('request-promise-native');
 
 // handler.add({
 //   body: "url=https%3A%2F%2Fwww.amazon.com%2FIntel-i9-10900X-Desktop-Processor-Unlocked%2Fdp%2FB07YP69HTM"
@@ -17,4 +18,4 @@ const handler = require('./handler')
 //     newegg: "https://www.newegg.com/amd-ryzen-5-3600/p/N82E16819113569"
 //   }})
 
-handler.run();
+// handler.run();

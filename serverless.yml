@@ -19,7 +19,7 @@ service: cheapass
 
 provider:
   name: aws
-  region: us-west-1
+  region: ${file(./serverless.env.yml):dev.REGION}
   runtime: nodejs10.x
   timeout: 28
   versionFunctions: false
@@ -36,12 +36,23 @@ functions:
       - schedule: rate(15 minutes)
 
   crawl:
-    description: Scrape webpage in background
+    description: Crawl a set of URLS
     handler: handler.crawl
+    environment:
+      LAMBDA_ENDPOINT: ${file(./serverless.env.yml):dev.LAMBDA_ENDPOINT}
 
     events:
       - http:
           path: crawl
+          method: post
+
+  pathfinder:
+    description: Scrape webpage in background
+    handler: handler.pathfinder
+
+    events:
+      - http:
+          path: pathfinder
           method: post
 
   refresh-all:

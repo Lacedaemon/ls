@@ -1,4 +1,5 @@
 const urlUtil = require('url');
+const request = require('request');
 
 const amazon = require ('./amazon');
 const newegg = require ('./newegg');
@@ -15,7 +16,7 @@ const getSeller = host =>
     host.indexOf(sellers[seller].host) >= 0
   )
 
-module.exports = (url, seller, browserWSEndpoint) => {
+module.exports = (url, seller) => {
   if (seller && Object.keys(sellers).indexOf(seller) === -1) {
     return Promise.reject({
       seller, url,
@@ -32,7 +33,7 @@ module.exports = (url, seller, browserWSEndpoint) => {
   const { scrape, normalize } = sellers[_seller];
 
   return new Promise((resolve, reject) =>
-    scrape(url, browserWSEndpoint).then(data =>
+    scrape(url).then(data =>
       resolve(Object.assign({}, data))
     ).catch(e => {
       console.log(e);

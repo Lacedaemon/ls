@@ -8,7 +8,14 @@ let result = null;
   let browser = null;
 
   try {
-    browser = await chromium.puppeteer.connect({browserWSEndpoint});
+    browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+    //executablePath: "google-chrome",
+      headless: chromium.headless,
+      //headless: true,
+    });
 
     const page = await browser.newPage();
 
