@@ -19,7 +19,7 @@ module.exports.pathfinder = (event, context) => {
     console.log("scrapedInfo: " + scrapedInfo.toString());
     console.log("returnedInfo: " + JSON.stringify(returnedPrices));
 
-    var dataDone = db.collection('prices').doc(uuid).set(returnedPrices, {merge:true});
+    var dataDone = db.collection('parts').doc(uuid).set(returnedPrices, {merge:true});
 
     dataDone.then(function () {
       return context.succeed("Done");
